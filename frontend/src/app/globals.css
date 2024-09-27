@@ -1,3 +1,15 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+html.light {
+  ::selection {
+    background: #cecfff;
+  }
+}
+
+html.dark {
+  ::selection {
+    background: #11008f;
+  }
+}

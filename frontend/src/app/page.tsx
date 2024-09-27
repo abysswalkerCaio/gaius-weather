@@ -1,7 +1,9 @@
-import FifthHeader from '@/app/components/headings/FifthHeader'
+import FifthHeader from "@/app/components/headings/FifthHeader";
 
 export default function Home() {
   return (
-    <FifthHeader title={"CAIO COSTA"} />
+    <div className="px-20">
+      <FifthHeader title={"Dashboard"} />
+    </div>
   );
 }
