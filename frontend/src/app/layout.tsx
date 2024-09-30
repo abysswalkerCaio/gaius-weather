@@ -20,10 +20,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="bg-zinc-300 dark:bg-zinc-800 grid grid-rows-[auto_auto_auto] min-h-screen grid-cols-1 font-roboto">
+      <body className="bg-zinc-300 dark:bg-zinc-800 grid grid-rows-[80px_auto_auto] min-h-screen grid-cols-1 font-roboto">
         <Providers>
           <Header />
-          <main className="m-8">{children}</main>
+          <main className="p-6 md:p-10">{children}</main>
           <Footer />
         </Providers>
       </body>
