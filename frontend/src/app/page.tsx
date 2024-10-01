@@ -1,103 +1,90 @@
 "use client";
 
+import PrimaryHeader from "@/app/components/headings/PrimaryHeader";
+import SecondaryHeader from "@/app/components/headings/SecondaryHeader";
+
 import { useState, useEffect } from "react";
-import { FormEvent } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCity, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import {
+  faCity,
+  faMagnifyingGlass,
+  faCircleNotch,
+} from "@fortawesome/free-solid-svg-icons";
 
-async function getCurrentWeatherData() {
-  try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/weather?lat=-23.5475&lon=-46.6361&units=metric&appid=${process.env.NEXT_PUBLIC_API_KEY}`
-    );
-    return response.json();
-  } catch (e) {
-    console.log(e);
-  }
-}
+import axios from "axios";
 
-async function getFiveDayWeatherForecastData() {
-  try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/forecast?lat=-23.5475&lon=-46.6361&units=metric&appid=${process.env.NEXT_PUBLIC_API_KEY}`
-    );
-    return response.json();
-  } catch (e) {
-    console.log(e);
-  }
-}
-
-async function getAirPollution() {
-  try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/air_pollution?lat=-23.5475&lon=-46.6361&units=metric&appid=${process.env.NEXT_PUBLIC_API_KEY}`
-    );
-    return response.json();
-  } catch (e) {
-    console.log(e);
-  }
-}
+const fetcher = (...args) => fetch(...args).then((res) => res.json());
 
 export default function Home() {
   const [localInput, setLocalInput] = useState("");
-
-  let currentWeatherData: Array<any> = [];
-  let fiveDayWeatherForecastData: Array<any> = [];
-  let airPollution: Array<any> = [];
-
-  useEffect(() => {
-    const fetchCurrentWeatherData = async () => {
-      currentWeatherData = await getCurrentWeatherData();
-      console.log(currentWeatherData);
-    };
-    fetchCurrentWeatherData();
-  }, []);
+  const [weather, setWeatherData] = useState([]);
+  const [forecast, setForecastData] = useState([]);
+  const [airPollution, setAirPollutionData] = useState([]);
 
   useEffect(() => {
-    const fetchFiveDayWeatherForecastData = async () => {
-      fiveDayWeatherForecastData = await getFiveDayWeatherForecastData();
-      console.log(fiveDayWeatherForecastData);
-    };
-    fetchFiveDayWeatherForecastData();
+    fetchWeatherData();
+    fetchForecastData();
+    fetchAirPollutionData();
   }, []);
 
-  useEffect(() => {
-    const fetchAirPollution = async () => {
-      airPollution = await getAirPollution();
-      console.log(airPollution);
-    };
-    fetchAirPollution();
-  }, []);
+  const fetchWeatherData = () => {
+    axios
+      .get(
+        `${process.env.NEXT_PUBLIC_API_URL}/weather?lat=-23.5475&lon=-46.6361&units=metric&appid=${process.env.NEXT_PUBLIC_API_KEY}`
+      )
+      .then((response) => {
+        setWeatherData(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
 
-  async function onSearch(event: FormEvent<HTMLFormEvent>) {
-    event.preventDefault();
+  const fetchForecastData = () => {
+    axios
+      .get(
+        `${process.env.NEXT_PUBLIC_API_URL}/forecast?lat=-23.5475&lon=-46.6361&units=metric&appid=${process.env.NEXT_PUBLIC_API_KEY}`
+      )
+      .then((response) => {
+        setForecastData(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
 
-    const input: any = document.getElementById("local");
-    const valor = input.value;
-    console.log(valor);
+  const fetchAirPollutionData = () => {
+    axios
+      .get(
+        `${process.env.NEXT_PUBLIC_API_URL}/air_pollution?lat=-23.5475&lon=-46.6361&units=metric&appid=${process.env.NEXT_PUBLIC_API_KEY}`
+      )
+      .then((response) => {
+        setAirPollutionData(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
 
-    try {
-      const response = await fetch(
-        `https://api.openweathermap.org/data/2.5/weather?q=${valor}&units=metric&appid=${process.env.NEXT_PUBLIC_API_KEY}`
-      );
-      console.log(response.clone().json());
-      if (response.status == 200) {
-      }
-      return response.json();
-    } catch (e) {
-      console.log(e);
-    }
-  }
+  const searchData = () => {
+    axios
+      .get(
+        `https://api.openweathermap.org/data/2.5/weather?q=${localInput}&units=metric&appid=${process.env.NEXT_PUBLIC_API_KEY}`
+      )
+      .then((response) => {
+        setWeatherData(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
 
   const metrics = ["standart", "metric", "imperial"];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 grid-rows-2">
-      <form
-        onSubmit={onSearch}
-        className="flex text-deep-ocean-900 dark:text-deep-ocean-200"
-      >
-        <div className="p-4 rounded-l bg-zinc-200 dark:bg-zinc-900 text-center">
+    <div className="grid grid-cols-1 md:grid-cols-2 grid-rows-[auto_auto_auto_auto] gap-5">
+      <form className="flex text-deep-ocean-900 dark:text-deep-ocean-200 shadow-md dark:shadow-zinc-800 h-fit">
+        <div className="py-4 px-6 rounded-l bg-zinc-200 dark:bg-zinc-900 text-center">
           <FontAwesomeIcon icon={faCity} />
         </div>
         <input
@@ -109,12 +96,41 @@ export default function Home() {
           placeholder="Search for cities..."
         />
         <button
-          className="p-4 rounded-r bg-zinc-200 hover:bg-zinc-400 dark:bg-zinc-900 dark:hover:bg-zinc-700 transition ease-in-out text-center"
-          type="submit"
+          onClick={searchData}
+          className="py-4 px-6 rounded-r bg-zinc-200 hover:bg-zinc-400 dark:bg-zinc-900 dark:hover:bg-zinc-700 transition ease-in-out text-center"
+          type="button"
         >
           <FontAwesomeIcon icon={faMagnifyingGlass} />
         </button>
       </form>
+      <div>Change Temperature</div>
+      <section id="current-weather">
+        <PrimaryHeader title={"Current Weather"} />
+        {weather.length < 1 ? (
+          <FontAwesomeIcon
+            icon={faCircleNotch}
+            className="self-center fa-spin"
+          />
+        ) : (
+          <div className="flex flex-col text-deep-ocean-900 dark:text-deep-ocean-200">
+            <SecondaryHeader
+              title={weather?.name + ", " + weather?.sys?.country}
+            />
+            <div className="text-lg">
+              {weather?.weather &&
+                weather.weather.map((weather) => (
+                  <img
+                    src={`${process.env.NEXT_PUBLIC_API_IMAGE_URL}/${weather.icon}@2x.png`}
+                    alt={weather.description}
+                  />
+                )) + parseInt(weather?.main?.temp)}
+            </div>
+          </div>
+        )}
+      </section>
+      <section id="8-day-forecast" className="flex flex-col break-all">
+        <PrimaryHeader title={"8-Day Forecast"} />
+      </section>
     </div>
   );
 }
