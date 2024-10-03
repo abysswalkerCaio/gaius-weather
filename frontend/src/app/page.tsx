@@ -9,15 +9,21 @@ import {
   faCity,
   faMagnifyingGlass,
   faCircleNotch,
+  faWind,
+  faArrowDown,
+  faTemperatureArrowUp,
+  faTemperatureArrowDown,
+  faDroplet,
+  faAnglesRight,
 } from "@fortawesome/free-solid-svg-icons";
 
 import axios from "axios";
 
-const fetcher = (...args) => fetch(...args).then((res) => res.json());
+const fetcher = (...args: any) => fetch(...args).then((res) => res.json());
 
 export default function Home() {
   const [localInput, setLocalInput] = useState("");
-  const [weather, setWeatherData] = useState([]);
+  const [weather, setWeatherData]: Array<any> = useState([]);
   const [forecast, setForecastData] = useState([]);
   const [airPollution, setAirPollutionData] = useState([]);
 
@@ -82,8 +88,8 @@ export default function Home() {
   const metrics = ["standart", "metric", "imperial"];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 grid-rows-[auto_auto_auto_auto] gap-5">
-      <form className="flex text-deep-ocean-900 dark:text-deep-ocean-200 shadow-md dark:shadow-zinc-800 h-fit">
+    <div className="grid grid-cols-1 md:grid-cols-2 grid-rows-[auto_auto_auto_auto] gap-5 text-zinc-800 dark:text-zinc-300 max-w-[1000px]">
+      <div className="flex text-deep-ocean-950 dark:text-deep-ocean-200 shadow-md dark:shadow-zinc-800 h-fit">
         <div className="py-4 px-6 rounded-l bg-zinc-200 dark:bg-zinc-900 text-center">
           <FontAwesomeIcon icon={faCity} />
         </div>
@@ -102,28 +108,95 @@ export default function Home() {
         >
           <FontAwesomeIcon icon={faMagnifyingGlass} />
         </button>
-      </form>
+      </div>
       <div>Change Temperature</div>
       <section id="current-weather">
-        <PrimaryHeader title={"Current Weather"} />
         {weather.length < 1 ? (
           <FontAwesomeIcon
             icon={faCircleNotch}
             className="self-center fa-spin"
           />
         ) : (
-          <div className="flex flex-col text-deep-ocean-900 dark:text-deep-ocean-200">
-            <SecondaryHeader
+          <div className="flex flex-col">
+            <PrimaryHeader
               title={weather?.name + ", " + weather?.sys?.country}
             />
-            <div className="text-lg">
-              {weather?.weather &&
-                weather.weather.map((weather) => (
+            <div className="flex flex-col justify-center gap-2">
+              <div className="flex items-center">
+                {weather?.weather.map((weather: any, index: number) => (
                   <img
+                    key={index}
                     src={`${process.env.NEXT_PUBLIC_API_IMAGE_URL}/${weather.icon}@2x.png`}
                     alt={weather.description}
+                    width={50}
+                    height={50}
+                    className="select-none"
                   />
-                )) + parseInt(weather?.main?.temp)}
+                ))}
+                <span className="text-xl sm:text-2xl md:text-3xl text-deep-ocean-950 dark:text-deep-ocean-200">
+                  {parseInt(weather?.main?.temp) + " °C"}
+                </span>
+              </div>
+              <div className="flex flex-col gap-2">
+                <div className="font-semibold">
+                  Feels like {parseInt(weather?.main?.feels_like) + " °C. "}
+                  {weather?.weather.map((weather: any, index: number) => (
+                    <span key={index}>
+                      {weather.description.charAt(0).toUpperCase() +
+                        weather.description.slice(1) +
+                        ". "}
+                    </span>
+                  ))}
+                </div>
+                <div className="flex max-[320px]:flex-col flex-row max-[320px]:gap-2 gap-4 border-l-2 border-deep-ocean-900 dark:border-deep-ocean-200 pl-3 max-[320px]:pl-6 ">
+                  <div className="flex flex-col gap-2 max-[320px]:flex-col min-[321px]:gap-4">
+                    <div className="flex items-center gap-2">
+                      <FontAwesomeIcon
+                        icon={faWind}
+                        className="text-xs sm:text-sm text-deep-ocean-950 dark:text-deep-ocean-200"
+                      />
+                      {weather?.wind?.speed} m/s
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <FontAwesomeIcon
+                        icon={faTemperatureArrowUp}
+                        className="text-xs sm:text-sm text-deep-ocean-950 dark:text-deep-ocean-200"
+                      />
+                      {parseInt(weather?.main?.temp_max)} °C
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <FontAwesomeIcon
+                        icon={faTemperatureArrowDown}
+                        className="text-xs sm:text-sm text-deep-ocean-950 dark:text-deep-ocean-200"
+                      />
+                      {parseInt(weather?.main?.temp_min)} °C
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-2 max-[320px]:flex-col min-[321px]:gap-4">
+                    <div className="flex items-center gap-2">
+                      <FontAwesomeIcon
+                        icon={faArrowDown}
+                        className="text-xs sm:text-sm text-deep-ocean-950 dark:text-deep-ocean-200"
+                      />
+                      {weather?.main?.pressure} hPa
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <FontAwesomeIcon
+                        icon={faDroplet}
+                        className="text-xs sm:text-sm text-deep-ocean-950 dark:text-deep-ocean-200"
+                      />
+                      Humidity: {weather?.main?.humidity} %
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <FontAwesomeIcon
+                        icon={faAnglesRight}
+                        className="text-xs sm:text-sm text-deep-ocean-950 dark:text-deep-ocean-200"
+                      />
+                      Visibility: {weather?.visibility / 1000} km
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         )}
